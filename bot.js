@@ -92,7 +92,7 @@ const DOMANDE = [
         domanda: "📊 Quali mercati tradi?",
         opzioni: [
             { etichetta: "Forex", valore: "forex", emoji: "💱" },
-            { etichetta: "Crypto", valore: "crypto", emoji: "₿" },
+            { etichetta: "Cripto", valore: "cripto", emoji: "🪙" },
             { etichetta: "Indici", valore: "indici", emoji: "📈" },
             { etichetta: "Materie prime", valore: "materie prime", emoji: "🥇" }
         ]
@@ -133,7 +133,7 @@ const DOMANDE = [
         opzioni: [
             { etichetta: "MetaTrader 4/5", valore: "mt4_5", emoji: "📊" },
             { etichetta: "TradingView", valore: "tradingview", emoji: "📈" },
-            { etichetta: "cTrader", valore: "ctrader", emoji: "💼" },
+            {etichetta: "cTrader", valore: "ctrader", emoji: "💼" },
             { etichetta: "Altro", valore: "altro_platform", emoji: "🖥️" }
         ]
     },
@@ -141,9 +141,9 @@ const DOMANDE = [
         ID: 13,
         domanda: "⚖️ Qual è la tua tolleranza al rischio per trade?",
         opzioni: [
-            {etichetta: "Conservativa (<1%)", valore: "conservativa", emoji: "🟢" },
-            { etichetta: "Moderata (1-2%)", valore: "moderata", emoji: "🟡" },
-            { etichetta: "Aggressiva (2-5%)", valore: "aggressiva", emoji: "🟠" }
+            { etichetta: "Conservativa (<1%)", valore: "conservativa", emoji: "🛡️" },
+            { etichetta: "Moderata (1-2%)", valore: "moderata", emoji: "⚖️" },
+            {etichetta: "Aggressiva (2-5%)", valore: "aggressiva", emoji: "🔥" }
         ]
     },
     {
@@ -161,7 +161,7 @@ const DOMANDE = [
         domanda: "📚 Qual è la tua esperienza con l'analisi tecnica?",
         opzioni: [
             { etichetta: "Principiante", valore: "principiante", emoji: "🌱" },
-            { etichetta: "Intermedio", valore: "intermedio", emoji: "📚" },
+            {etichetta: "Intermedio", valore: "intermedio", emoji: "📚" },
             { etichetta: "Avanzato", valore: "avanzato", emoji: "🎓" },
             {etichetta: "Esperto", valore: "esperto_at", emoji: "🏆" }
         ]
