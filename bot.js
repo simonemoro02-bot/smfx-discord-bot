@@ -15,7 +15,8 @@ const CONFIG = {
     GUILD_ID: process.env.GUILD_ID,
     WELCOME_CHANNEL_ID: process.env.WELCOME_CHANNEL_ID,
     VERIFICATION_CHANNEL_ID: process.env.VERIFICATION_CHANNEL_ID,
-    UNVERIFIED_ROLE_ID: '1465665414238310400'
+    UNVERIFIED_ROLE_ID: '1465665414238310400',
+    VERIFIED_ROLE_ID: '1465806849927413820' // Aggiungi l'ID del ruolo VERIFICATO
 };
 
 const userResponses = new Map();
@@ -26,7 +27,7 @@ const QUESTIONS = [
         question: "📊 Da quanto tempo fai trading?",
         options: [
             { label: "0-2 anni", value: "0-2_anni", emoji: "🌱", role: "Nuovo (0-1 anni esperienza)" },
-            { label: "2-5            { lab-5_anni", emoji: "📚", role: "Esperto (1-5 anni)" },
+            { label: "2-5 anni", value: "2-5_anni", emoji: "📚", role: "Esperto (1-5 anni)" },
             { label: "5+ anni", value: "5+_anni", emoji: "🏆", role: "Pro (5+ anni)" }
         ]
     },
@@ -195,7 +196,7 @@ client.on('guildMemberAdd', async (member) => {
             
             await welcomeChannel.send({ embeds: [welcomeEmbed] });
         }
-
+        
         // Invia prima domanda
         const verificationChannel = guild.channels.cache.get(CONFIG.VERIFICATION_CHANNEL_ID);
         if (verificationChannel) {
@@ -213,6 +214,7 @@ async function sendQuestion(member, channel, questionIndex) {
         await completeVerification(member, channel);
         return;
     }
+    
     const question = QUESTIONS[questionIndex];
     const embed = new EmbedBuilder()
         .setColor('#0099ff')
@@ -220,44 +222,55 @@ async function sendQuestion(member, channel, questionIndex) {
         .setDescription(question.question)
         .setFooter({ text: member.user.username + ' • Clicca sui bottoni per rispondere' })
         .setTimestamp();
-    const buttons = question.options.map((option, index) => 
+    
+    const buttons = question.options.map((option, index) =>
         new ButtonBuilder()
             .setCustomId('q' + questionIndex + '_' + index)
             .setLabel(option.label)
             .setEmoji(option.emoji)
             .setStyle(ButtonStyle.Primary)
     );
+    
     const rows = [];
     for (let i = 0; i < buttons.length; i += 5) {
         rows.push(new ActionRowBuilder().addComponents(buttons.slice(i, i + 5)));
     }
+    
     await channel.send({ content: member.toString(), embeds: [embed], components: rows });
 }
 
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
+    
     try {
         const member = interaction.member;
         const customId = interaction.customId;
         const match = customId.match(/q(\d+)_(\d+)/);
+        
         if (!match) return;
+        
         const questionIndex = parseInt(match[1]);
         const answerIndex = parseInt(match[2]);
         const question = QUESTIONS[questionIndex];
         const selectedOption = question.options[answerIndex];
+        
         if (!userResponses.has(member.id)) {
             userResponses.set(member.id, []);
         }
+        
         userResponses.get(member.id).push({
             question: question.question,
             answer: selectedOption.label,
             role: selectedOption.role
         });
-        await interaction.reply({ 
-            content: '✅ Risposta registrata: **' + selectedOption.label + '**\n\nProssima domanda in arrivo...', 
-            ephemeral: true 
+        
+        await interaction.reply({
+            content: '✅ Risposta registrata: **' + selectedOption.label + '**\n\nProssima domanda in arrivo...',
+            ephemeral: true
         });
+        
         await interaction.message.delete();
+        
         const channel = interaction.channel;
         setTimeout(async () => {
             await sendQuestion(member, channel, questionIndex + 1);
@@ -271,12 +284,14 @@ async function completeVerification(member, channel) {
     try {
         const responses = userResponses.get(member.id);
         if (!responses) return;
+        
         const rolesToAssign = new Set();
         responses.forEach(response => {
             if (response.role) {
                 rolesToAssign.add(response.role);
             }
         });
+        
         const guild = member.guild;
         
         // Assegna ruoli di profilazione
@@ -285,6 +300,12 @@ async function completeVerification(member, channel) {
             if (role) {
                 await member.roles.add(role);
             }
+        }
+        
+        // Assegna ruolo VERIFICATO
+        const verifiedRole = guild.roles.cache.get(CONFIG.VERIFIED_ROLE_ID);
+        if (verifiedRole) {
+            await member.roles.add(verifiedRole);
         }
         
         // Rimuovi ruolo NON VERIFICATO
@@ -300,6 +321,7 @@ async function completeVerification(member, channel) {
             .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
             .setFooter({ text: 'SMFX ACADEMY • Il tuo viaggio inizia ora!' })
             .setTimestamp();
+        
         await channel.send({ content: member.toString(), embeds: [completionEmbed] });
         userResponses.delete(member.id);
     } catch (error) {
