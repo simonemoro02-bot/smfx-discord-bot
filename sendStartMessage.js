@@ -8,7 +8,7 @@ const client = new Client({
 const CONFIG = {
     TOKEN: process.env.TOKEN,
     GUILD_ID: process.env.GUILD_ID,
-    START_CHANNEL_ID: process.env.START_CHANNEL_ID, // ID canale #inizia-da-qui
+    START_CHANNEL_ID: '1465401937389420687', // ID canale #inizia-da-qui
 };
 
 client.once('ready', async () => {
