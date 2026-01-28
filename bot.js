@@ -173,7 +173,44 @@ client.once('ready', () => {
     console.log('Pronto in ' + client.guilds.cache.size + ' server!');
 });
 
-client.on('guildMemberAdd', async (member) => {
+client.on('guildMemberAdd',// Bottone "Inizia Verifica" sul canale #inizia-da-qui
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isButton()) return;
+
+    try {
+        // Bottone "Inizia Verifica"
+        if (interaction.customId === 'start_verification') {
+            const member = interaction.member;
+            const guild = interaction.guild;
+            
+            // Trova il canale #chi-sei
+            const verificationChannel = guild.channels.cache.get(CONFIG.VERIFICATION_CHANNEL_ID);
+
+            if (!verificationChannel) {
+                return interaction.reply({
+                    content: '❌ Canale di verifica non trovato!',
+                    ephemeral: true,
+                });
+            }
+
+            // Rispondi al membro
+            await interaction.reply({
+                content: `✅ Accesso concesso! Vai su ${verificationChannel} per iniziare le 15 domande di verifica. 🚀`,
+                ephemeral: true,
+            });
+
+            // Invia la prima domanda
+            const verificationChannel2 = guild.channels.cache.get(CONFIG.VERIFICATION_CHANNEL_ID);
+            setTimeout(async () => {
+                await sendQuestion(member, verificationChannel2, 0);
+            }, 1000);
+
+            console.log(`✅ ${member.user.tag} ha iniziato la verifica`);
+        }
+    } catch (error) {
+        console.error('❌ Errore nell\'interazione:', error);
+    }
+}); async (member) => {
     try {
         const guild = member.guild;
         const unverifiedRole = guild.roles.cache.get(CONFIG.UNVERIFIED_ROLE_ID);
