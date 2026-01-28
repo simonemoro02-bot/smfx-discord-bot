@@ -189,11 +189,25 @@ client.on('guildMemberAdd', async (member) => {
         const welcomeChannel = guild.channels.cache.get(CONFIG.WELCOME_CHANNEL_ID);
         if (welcomeChannel) {
             const embed = new EmbedBuilder()
-                .setColor('#00FF00')
+                .setColor('#FF6B35')
                 .setTitle('🎉 Benvenuto in SMFX ACADEMY!')
-                .setDescription(`Ciao ${member.user.username}! Vai nel canale <#${CONFIG.START_CHANNEL_ID}> per iniziare!`)
+                .setDescription(
+                    `Ciao tiacolo! 👋\n\n` +
+                    `Sei ufficialmente entrato nella **SMFX ACADEMY PREMIUM**, la community di trading più completa d'Italia!\n\n` +
+                    `🚀 **Il tuo viaggio inizia qui:**\n\n` +
+                    `Per accedere a tutti i contenuti esclusivi, vai nel canale <#${CONFIG.START_CHANNEL_ID}> e segui il percorso di verifica!\n\n` +
+                    `💡 **Dopo aver completato tutti gli step, riceverai i ruoli in base al tuo profilo e potrai accedere a:**\n` +
+                    `• 📚 Contenuti formativi avanzati\n` +
+                    `• 📊 Analisi di mercato in tempo reale\n` +
+                    `• 💬 Chat con altri trader\n` +
+                    `• 🎯 Strategie esclusive\n` +
+                    `• 🏆 E molto altro!\n\n` +
+                    `**Iniziamo questo viaggio di successo insieme!** 💪`
+                )
                 .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
+                .setFooter({ text: 'SMFX ACADEMY • Premium Trading Community' })
                 .setTimestamp();
+            
             await welcomeChannel.send({ embeds: [embed] });
         }
     } catch (error) {
@@ -301,7 +315,17 @@ async function completeVerification(member, interaction) {
         const embed = new EmbedBuilder()
             .setColor('#00FF00')
             .setTitle('✅ Verifica Completata!')
-            .setDescription(`Complimenti ${member.user.username}! Accesso concesso! 🚀`)
+            .setDescription(
+                `**Complimenti ${member.user.username}!** 🎉\n\n` +
+                `Hai completato con successo il questionario di benvenuto!\n\n` +
+                `**🎯 Ruoli assegnati:**\n` +
+                (Array.from(roles).map(r => `• ${r}`).join('\n') || '• Profilo base') +
+                `\n\n🚀 **Ora puoi accedere a tutti i canali della community!**\n\n` +
+                `💪 Inizia subito a esplorare i contenuti, partecipare alle discussioni e migliorare le tue skills di trading!\n\n` +
+                `📈 **Buon trading e benvenuto nella famiglia SMFX!**`
+            )
+            .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
+            .setFooter({ text: 'SMFX ACADEMY • Il tuo viaggio inizia ora!' })
             .setTimestamp();
 
         await interaction.followUp({ embeds: [embed], ephemeral: true });
