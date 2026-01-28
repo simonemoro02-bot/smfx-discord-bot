@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType } = require('discord.js');
 require('dotenv').config();
 
 const client = new Client({
@@ -169,9 +169,55 @@ const QUESTIONS = [
     }
 ];
 
-client.once('ready', () => {
+let messagesAlreadySent = false;
+
+client.once('ready', async () => {
     console.log('Bot online come: ' + client.user.tag);
     console.log('Pronto in ' + client.guilds.cache.size + ' server!');
+    
+    // Invia i messaggi automatici una sola volta
+    if (!messagesAlreadySent) {
+        try {
+            const guild = client.guilds.cache.get(CONFIG.GUILD_ID);
+            if (guild) {
+                // Messaggio nel canale #inizia-da-qui con bottone
+                const startChannel = guild.channels.cache.get(CONFIG.START_CHANNEL_ID);
+                if (startChannel) {
+                    const button = new ButtonBuilder()
+                        .setCustomId('next_step_verification')
+                        .setLabel('📋 Passa al Prossimo Step')
+                        .setStyle(ButtonStyle.Success);
+
+                    const row = new ActionRowBuilder().addComponents(button);
+
+                    const embed = new EmbedBuilder()
+                        .setColor('#FF6B35')
+                        .setTitle('🎉 Hai Completato i 3 Step!')
+                        .setDescription(
+                            `Fantastico! 🎊\n\n` +
+                            `✅ **Presentazione** completata\n` +
+                            `✅ **Videocorsi** su Whop guardati\n` +
+                            `✅ **PDF Psicologia** letti\n\n` +
+                            `**Adesso sei pronto per il passo finale!** 🔓\n\n` +
+                            `Clicca il bottone qui sotto per accedere al prossimo step e iniziare le **15 domande** di verifica.\n\n` +
+                            `Una volta completato, riceverai il ruolo **✅ VERIFICATO** e avrai accesso a **TUTTI i canali** della community! 🚀`
+                        )
+                        .setFooter({ text: 'SMFX ACADEMY • Sei quasi arrivato!' })
+                        .setTimestamp();
+
+                    await startChannel.send({
+                        embeds: [embed],
+                        components: [row],
+                    });
+
+                    console.log('✅ Messaggio con bottone inviato su #inizia-da-qui');
+                }
+            }
+            messagesAlreadySent = true;
+        } catch (error) {
+            console.error('Errore nell\'inviare i messaggi automatici:', error);
+        }
+    }
 });
 
 client.on('guildMemberAdd', async (member) => {
@@ -233,7 +279,7 @@ client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
 
     try {
-        // Bottone "Passa al Prossimo Step" dal canale #inizia-da-qui
+        // Bottone "Passa al Prossimo Step"
         if (interaction.customId === 'next_step_verification') {
             const member = interaction.member;
             const guild = interaction.guild;
@@ -256,11 +302,11 @@ client.on('interactionCreate', async (interaction) => {
                 await sendQuestion(member, verificationChannel, 0);
             }, 1000);
 
-            console.log(`✅ ${member.user.tag} ha cliccato il bottone Passa al Prossimo Step`);
+            console.log(`✅ ${member.user.tag} ha cliccato il bottone`);
             return;
         }
 
-        // Resto delle domande (le 15 domande)
+        // Resto delle domande
         const member = interaction.member;
         const customId = interaction.customId;
         const match = customId.match(/q(\d+)_(\d+)/);
@@ -278,7 +324,7 @@ client.on('interactionCreate', async (interaction) => {
 
         const selectedOption = question.options[answerIndex];
         if (!selectedOption) {
-            console.error(`Errore: Opzione ${answerIndex} non trovata per domanda ${questionIndex}!`);
+            console.error(`Errore: Opzione ${answerIndex} non trovata!`);
             return;
         }
 
@@ -304,7 +350,7 @@ client.on('interactionCreate', async (interaction) => {
             await sendQuestion(member, channel, questionIndex + 1);
         }, 1500);
     } catch (error) {
-        console.error('Errore nel gestire bottone:', error);
+        console.error('Errore:', error);
     }
 });
 
