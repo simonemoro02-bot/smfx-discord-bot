@@ -12,7 +12,7 @@ jobs:
         with:
           node-version: '16'
       - run: npm install
-      - run: npm run send-message
+      - run: node sendStartMessage.js
         env:
           TOKEN: ${{ secrets.DISCORD_TOKEN }}
           GUILD_ID: ${{ secrets.GUILD_ID }}
