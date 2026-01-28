@@ -4,7 +4,9 @@
   "description": "",
   "main": "bot.js",
   "scripts": {
-    "start": "node bot.js"
+  "start": "node bot.js",
+  "send-message": "node sendStartMessage.js"
+},
   },
   "keywords": [],
   "author": "",
