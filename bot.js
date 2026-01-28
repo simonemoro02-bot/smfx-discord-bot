@@ -368,5 +368,41 @@ async function completeVerification(member, channel) {
         console.error('Errore nel completare verifica:', error);
     }
 }
+// Gestire il bottone "Inizia Verifica" dal canale #inizia-da-qui
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isButton()) return;
 
+    try {
+        // Se è il bottone "Inizia Verifica"
+        if (interaction.customId === 'start_verification') {
+            const member = interaction.member;
+            const guild = interaction.guild;
+            
+            // Trova il canale #chi-sei
+            const verificationChannel = guild.channels.cache.get(CONFIG.VERIFICATION_CHANNEL_ID);
+
+            if (!verificationChannel) {
+                return interaction.reply({
+                    content: '❌ Canale di verifica non trovato!',
+                    ephemeral: true,
+                });
+            }
+
+            // Rispondi al membro
+            await interaction.reply({
+                content: `✅ Accesso concesso! Vai su ${verificationChannel} per iniziare le 15 domande di verifica. 🚀`,
+                ephemeral: true,
+            });
+
+            // Invia la prima domanda dopo 1 secondo
+            setTimeout(async () => {
+                await sendQuestion(member, verificationChannel, 0);
+            }, 1000);
+
+            console.log(`✅ ${member.user.tag} ha cliccato il bottone Inizia Verifica`);
+        }
+    } catch (error) {
+        console.error('❌ Errore nell\'interazione bottone:', error);
+    }
+});
 client.login(CONFIG.TOKEN);
