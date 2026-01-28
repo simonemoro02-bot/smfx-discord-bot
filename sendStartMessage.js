@@ -30,8 +30,8 @@ client.once('ready', async () => {
 
         // Crea il bottone
         const button = new ButtonBuilder()
-            .setCustomId('start_verification')
-            .setLabel('🚀 Inizia Verifica')
+            .setCustomId('next_step_verification')
+            .setLabel('📋 Passa al Prossimo Step')
             .setStyle(ButtonStyle.Success);
 
         const row = new ActionRowBuilder().addComponents(button);
@@ -46,24 +46,10 @@ client.once('ready', async () => {
                 `✅ **Videocorsi** su Whop guardati\n` +
                 `✅ **PDF Psicologia** letti\n\n` +
                 `**Adesso sei pronto per il passo finale!** 🔓\n\n` +
-                `Clicca il bottone qui sotto per accedere al canale **#chi-sei** e rispondere alle **15 domande** di verifica.\n\n` +
+                `Clicca il bottone qui sotto per accedere al prossimo step e iniziare le **15 domande** di verifica.\n\n` +
                 `Una volta completato, riceverai il ruolo **✅ VERIFICATO** e avrai accesso a **TUTTI i canali** della community! 🚀`
             )
             .setFooter({ text: 'SMFX ACADEMY • Sei quasi arrivato!' })
             .setTimestamp();
 
-        // Invia il messaggio con bottone
-        await startChannel.send({
-            embeds: [embed],
-            components: [row],
-        });
-
-        console.log('✅ Messaggio con bottone inviato su #inizia-da-qui');
-        process.exit(0);
-    } catch (error) {
-        console.error('❌ Errore:', error);
-        process.exit(1);
-    }
-});
-
-client.login(CONFIG.TOKEN);
+        // Invia il me
