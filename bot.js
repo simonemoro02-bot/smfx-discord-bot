@@ -14,7 +14,7 @@ const CONFIG = {
     TOKEN: process.env.TOKEN,
     GUILD_ID: process.env.GUILD_ID,
     WELCOME_CHANNEL_ID: process.env.WELCOME_CHANNEL_ID,
-    START_CHANNEL_ID: '1465401937389420687', // Canale #inizia-da-qui
+    START_CHANNEL_ID: '1465401937389420687',
     VERIFICATION_CHANNEL_ID: process.env.VERIFICATION_CHANNEL_ID,
     UNVERIFIED_ROLE_ID: '1465665414238310400',
     VERIFIED_ROLE_ID: '1465806849927413820'
@@ -175,12 +175,10 @@ client.once('ready', async () => {
     console.log('Bot online come: ' + client.user.tag);
     console.log('Pronto in ' + client.guilds.cache.size + ' server!');
     
-    // Invia i messaggi automatici una sola volta
     if (!messagesAlreadySent) {
         try {
             const guild = client.guilds.cache.get(CONFIG.GUILD_ID);
             if (guild) {
-                // Messaggio nel canale #inizia-da-qui con bottone
                 const startChannel = guild.channels.cache.get(CONFIG.START_CHANNEL_ID);
                 if (startChannel) {
                     const button = new ButtonBuilder()
@@ -192,17 +190,44 @@ client.once('ready', async () => {
 
                     const embed = new EmbedBuilder()
                         .setColor('#FF6B35')
-                        .setTitle('🎉 Hai Completato i 3 Step!')
+                        .setTitle('🎉 BENVENUTO IN SMFX ACADEMY PREMIUM!')
                         .setDescription(
-                            `Fantastico! 🎊\n\n` +
-                            `✅ **Presentazione** completata\n` +
-                            `✅ **Videocorsi** su Whop guardati\n` +
-                            `✅ **PDF Psicologia** letti\n\n` +
-                            `**Adesso sei pronto per il passo finale!** 🔓\n\n` +
-                            `Clicca il bottone qui sotto per accedere al prossimo step e iniziare le **15 domande** di verifica.\n\n` +
-                            `Una volta completato, riceverai il ruolo **✅ VERIFICATO** e avrai accesso a **TUTTI i canali** della community! 🚀`
+                            `Ora segui questi 4 step per essere verificato:\n\n` +
+                            `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                            `**STEP 1️⃣ - VIDEOCORSI SU WHOP**\n` +
+                            `Vai su Whop → **STRATEGY COURSES** e guarda:\n` +
+                            `📹 **SMFX Strategy** (2-3 ore)\n` +
+                            `📹 **H4-M15 Swing Strategy** (1-2 ore)\n\n` +
+                            `✅ Una volta guardati → Procedi allo STEP 2\n\n` +
+                            `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                            `**STEP 2️⃣ - PDF PSICOLOGIA SU WHOP**\n` +
+                            `Vai su Whop → **Psicologia/Mindset** e leggi TUTTI i PDF:\n` +
+                            `📄 Allenare_il_cervello_per_il_live_trading.pdf\n` +
+                            `📄 Come_Allenare_Corpo_Allena_Mente_SMFX.pdf\n` +
+                            `📄 Come_Controllare_Paura_e_Avidita_SMFX.pdf\n` +
+                            `📄 Controllare_le_Emozioni_SMFX.pdf\n` +
+                            `📄 Discipline_Gap_SMFX.pdf\n` +
+                            `📄 Effetto_Specchio_SMFX.pdf\n\n` +
+                            `✅ Una volta letti tutti → Procedi allo STEP 3\n\n` +
+                            `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                            `**STEP 3️⃣ - VERIFICA NEL CANALE #CHI-SEI**\n` +
+                            `Clicca il bottone qui sotto per accedere a #chi-sei\n` +
+                            `Rispondi alle 15 domande di verifica\n` +
+                            `Riceverai il ruolo **✅ VERIFICATO**\n\n` +
+                            `✅ Una volta verificato → Procedi allo STEP 4\n\n` +
+                            `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                            `**STEP 4️⃣ - PRESENTAZIONE NEL CANALE #PRESENTAZIONE**\n` +
+                            `Vai nel canale #presentazione e scrivi:\n` +
+                            `• Il tuo nome\n` +
+                            `• Da quanto tempo fai trading\n` +
+                            `• Il tuo obiettivo principale\n` +
+                            `• Una cosa interessante su di te\n\n` +
+                            `✅ Una volta fatto → Hai accesso COMPLETO! 🚀\n\n` +
+                            `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                            `🔓 **Riceverai il ruolo ✅ VERIFICATO e accesso a TUTTI i canali!**\n\n` +
+                            `**SMFX ACADEMY • Il tuo viaggio inizia ora!** 🚀`
                         )
-                        .setFooter({ text: 'SMFX ACADEMY • Sei quasi arrivato!' })
+                        .setFooter({ text: 'SMFX ACADEMY • Inizia il tuo percorso!' })
                         .setTimestamp();
 
                     await startChannel.send({
@@ -279,7 +304,6 @@ client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
 
     try {
-        // Bottone "Passa al Prossimo Step"
         if (interaction.customId === 'next_step_verification') {
             const member = interaction.member;
             const guild = interaction.guild;
@@ -306,7 +330,6 @@ client.on('interactionCreate', async (interaction) => {
             return;
         }
 
-        // Resto delle domande
         const member = interaction.member;
         const customId = interaction.customId;
         const match = customId.match(/q(\d+)_(\d+)/);
