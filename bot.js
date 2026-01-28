@@ -173,44 +173,7 @@ client.once('ready', () => {
     console.log('Pronto in ' + client.guilds.cache.size + ' server!');
 });
 
-client.on('guildMemberAdd',// Bottone "Inizia Verifica" sul canale #inizia-da-qui
-client.on('interactionCreate', async (interaction) => {
-    if (!interaction.isButton()) return;
-
-    try {
-        // Bottone "Inizia Verifica"
-        if (interaction.customId === 'start_verification') {
-            const member = interaction.member;
-            const guild = interaction.guild;
-            
-            // Trova il canale #chi-sei
-            const verificationChannel = guild.channels.cache.get(CONFIG.VERIFICATION_CHANNEL_ID);
-
-            if (!verificationChannel) {
-                return interaction.reply({
-                    content: '❌ Canale di verifica non trovato!',
-                    ephemeral: true,
-                });
-            }
-
-            // Rispondi al membro
-            await interaction.reply({
-                content: `✅ Accesso concesso! Vai su ${verificationChannel} per iniziare le 15 domande di verifica. 🚀`,
-                ephemeral: true,
-            });
-
-            // Invia la prima domanda
-            const verificationChannel2 = guild.channels.cache.get(CONFIG.VERIFICATION_CHANNEL_ID);
-            setTimeout(async () => {
-                await sendQuestion(member, verificationChannel2, 0);
-            }, 1000);
-
-            console.log(`✅ ${member.user.tag} ha iniziato la verifica`);
-        }
-    } catch (error) {
-        console.error('❌ Errore nell\'interazione:', error);
-    }
-}); async (member) => {
+client.on('guildMemberAdd', async (member) => {
     try {
         const guild = member.guild;
         const unverifiedRole = guild.roles.cache.get(CONFIG.UNVERIFIED_ROLE_ID);
@@ -276,6 +239,34 @@ client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
 
     try {
+        // Bottone "Inizia Verifica" dal canale #inizia-da-qui
+        if (interaction.customId === 'start_verification') {
+            const member = interaction.member;
+            const guild = interaction.guild;
+            
+            const verificationChannel = guild.channels.cache.get(CONFIG.VERIFICATION_CHANNEL_ID);
+
+            if (!verificationChannel) {
+                return interaction.reply({
+                    content: '❌ Canale di verifica non trovato!',
+                    ephemeral: true
+                });
+            }
+
+            await interaction.reply({
+                content: `✅ Accesso concesso! Vai su ${verificationChannel} per iniziare le 15 domande di verifica. 🚀`,
+                ephemeral: true
+            });
+
+            setTimeout(async () => {
+                await sendQuestion(member, verificationChannel, 0);
+            }, 1000);
+
+            console.log(`✅ ${member.user.tag} ha cliccato il bottone Inizia Verifica`);
+            return;
+        }
+
+        // Resto delle domande (le 15 domande)
         const member = interaction.member;
         const customId = interaction.customId;
         const match = customId.match(/q(\d+)_(\d+)/);
@@ -368,118 +359,5 @@ async function completeVerification(member, channel) {
         console.error('Errore nel completare verifica:', error);
     }
 }
-// Gestire il bottone "Inizia Verifica" dal canale #inizia-da-qui
-client.on('interactionCreate', async (interaction) => {
-    if (!interaction.isButton()) return;
 
-    try {
-        // Bottone "Inizia Verifica" dal canale #inizia-da-qui
-        if (interaction.customId === 'start_verification') {
-            const member = interaction.member;
-            const guild = interaction.guild;
-            
-            const verificationChannel = guild.channels.cache.get(CONFIG.VERIFICATION_CHANNEL_ID);
-
-            if (!verificationChannel) {
-                return interaction.reply({
-                    content: '❌ Canale di verifica non trovato!',
-                    ephemeral: true,
-                });
-            }
-
-            await interaction.reply({
-                content: `✅ Accesso concesso! Vai su ${verificationChannel} per iniziare le 15 domande di verifica. 🚀`,
-                ephemeral: true,
-            });
-
-            setTimeout(async () => {
-                await sendQuestion(member, verificationChannel, 0);
-            }, 1000);
-
-            console.log(`✅ ${member.user.tag} ha cliccato il bottone Inizia Verifica`);
-            return; // Importante: esci qui
-        }
-
-        // Resto delle domande (le 15 domande)
-        const member = interaction.member;
-        const customId = interaction.customId;
-        const match = customId.match(/q(\d+)_(\d+)/);
-
-        if (!match) return;
-
-        const questionIndex = parseInt(match[1]);
-        const answerIndex = parseInt(match[2]);
-
-        const question = QUESTIONS[questionIndex];
-        if (!question) {
-            console.error(`Errore: Domanda ${questionIndex} non trovata!`);
-            return;
-        }
-
-        const selectedOption = question.options[answerIndex];
-        if (!selectedOption) {
-            console.error(`Errore: Opzione ${answerIndex} non trovata per domanda ${questionIndex}!`);
-            return;
-        }
-
-        if (!userResponses.has(member.id)) {
-            userResponses.set(member.id, []);
-        }
-
-        userResponses.get(member.id).push({
-            question: question.question,
-            answer: selectedOption.label,
-            role: selectedOption.role
-        });
-
-        await interaction.reply({
-            content: '✅ Risposta registrata: **' + selectedOption.label + '**\n\nProssima domanda in arrivo...',
-            ephemeral: true
-        });
-
-        await interaction.message.delete();
-
-        const channel = interaction.channel;
-        setTimeout(async () => {
-            await sendQuestion(member, channel, questionIndex + 1);
-        }, 1500);
-    } catch (error) {
-        console.error('Errore nel gestire bottone:', error);
-    }
-});, async (interaction) => {
-    if (!interaction.isButton()) return;
-
-    try {
-        // Se è il bottone "Inizia Verifica"
-        if (interaction.customId === 'start_verification') {
-            const member = interaction.member;
-            const guild = interaction.guild;
-            
-            // Trova il canale #chi-sei
-            const verificationChannel = guild.channels.cache.get(CONFIG.VERIFICATION_CHANNEL_ID);
-
-            if (!verificationChannel) {
-                return interaction.reply({
-                    content: '❌ Canale di verifica non trovato!',
-                    ephemeral: true,
-                });
-            }
-
-            // Rispondi al membro
-            await interaction.reply({
-                content: `✅ Accesso concesso! Vai su ${verificationChannel} per iniziare le 15 domande di verifica. 🚀`,
-                ephemeral: true,
-            });
-
-            // Invia la prima domanda dopo 1 secondo
-            setTimeout(async () => {
-                await sendQuestion(member, verificationChannel, 0);
-            }, 1000);
-
-            console.log(`✅ ${member.user.tag} ha cliccato il bottone Inizia Verifica`);
-        }
-    } catch (error) {
-        console.error('❌ Errore nell\'interazione bottone:', error);
-    }
-});
 client.login(CONFIG.TOKEN);
