@@ -14,6 +14,7 @@ const CONFIG = {
     TOKEN: process.env.TOKEN,
     GUILD_ID: process.env.GUILD_ID,
     WELCOME_CHANNEL_ID: process.env.WELCOME_CHANNEL_ID,
+    START_CHANNEL_ID: '1465401937389420687', // Canale #inizia-da-qui
     VERIFICATION_CHANNEL_ID: process.env.VERIFICATION_CHANNEL_ID,
     UNVERIFIED_ROLE_ID: '1465665414238310400',
     VERIFIED_ROLE_ID: '1465806849927413820'
@@ -186,19 +187,12 @@ client.on('guildMemberAdd', async (member) => {
             const welcomeEmbed = new EmbedBuilder()
                 .setColor('#00FF00')
                 .setTitle('🎉 Benvenuto in SMFX ACADEMY!')
-                .setDescription(`**Ciao ${member.user.username}!** 👋\n\nSei ufficialmente entrato nella **SMFX ACADEMY PREMIUM**, la community di trading più completa d'Italia!\n\n🚀 **Il tuo viaggio inizia qui:**\n\n📋 Per accedere a tutti i contenuti esclusivi, vai nel canale <#${CONFIG.VERIFICATION_CHANNEL_ID}> e rispondi alle **15 domande** che ti aiuteranno a personalizzare la tua esperienza.\n\n💡 Dopo aver completato il questionario, riceverai i ruoli in base al tuo profilo e potrai accedere a:\n• 📚 Contenuti formativi avanzati\n• 📊 Analisi di mercato in tempo reale\n• 💬 Chat con altri trader\n• 🎯 Strategie esclusive\n• 🏆 E molto altro!\n\n**Iniziamo questo viaggio di successo insieme!** 💪`)
+                .setDescription(`**Ciao ${member.user.username}!** 👋\n\nSei ufficialmente entrato nella **SMFX ACADEMY PREMIUM**, la community di trading più completa d'Italia!\n\n🚀 **Il tuo viaggio inizia qui:**\n\nPer accedere a tutti i contenuti esclusivi, vai nel canale <#${CONFIG.START_CHANNEL_ID}> e segui il percorso di verifica!\n\n💡 Dopo aver completato tutti gli step, riceverai i ruoli in base al tuo profilo e potrai accedere a:\n• 📚 Contenuti formativi avanzati\n• 📊 Analisi di mercato in tempo reale\n• 💬 Chat con altri trader\n• 🎯 Strategie esclusive\n• 🏆 E molto altro!\n\n**Iniziamo questo viaggio di successo insieme!** 💪`)
                 .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
                 .setFooter({ text: 'SMFX ACADEMY • Premium Trading Community' })
                 .setTimestamp();
 
             await welcomeChannel.send({ embeds: [welcomeEmbed] });
-        }
-
-        const verificationChannel = guild.channels.cache.get(CONFIG.VERIFICATION_CHANNEL_ID);
-        if (verificationChannel) {
-            setTimeout(async () => {
-                await sendQuestion(member, verificationChannel, 0);
-            }, 3000);
         }
     } catch (error) {
         console.error('Errore nel gestire nuovo membro:', error);
@@ -239,8 +233,8 @@ client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
 
     try {
-        // Bottone "Inizia Verifica" dal canale #inizia-da-qui
-        if (interaction.customId === 'start_verification') {
+        // Bottone "Passa al Prossimo Step" dal canale #inizia-da-qui
+        if (interaction.customId === 'next_step_verification') {
             const member = interaction.member;
             const guild = interaction.guild;
             
@@ -254,7 +248,7 @@ client.on('interactionCreate', async (interaction) => {
             }
 
             await interaction.reply({
-                content: `✅ Accesso concesso! Vai su ${verificationChannel} per iniziare le 15 domande di verifica. 🚀`,
+                content: `✅ Vai su ${verificationChannel} e inizia le 15 domande di verifica! 🚀`,
                 ephemeral: true
             });
 
@@ -262,7 +256,7 @@ client.on('interactionCreate', async (interaction) => {
                 await sendQuestion(member, verificationChannel, 0);
             }, 1000);
 
-            console.log(`✅ ${member.user.tag} ha cliccato il bottone Inizia Verifica`);
+            console.log(`✅ ${member.user.tag} ha cliccato il bottone Passa al Prossimo Step`);
             return;
         }
 
