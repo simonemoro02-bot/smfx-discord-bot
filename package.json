@@ -1,17 +1,17 @@
 {
   "name": "smfx-bot",
   "version": "1.0.0",
-  "descrizione": "",
-  "principale": "bot.js",
+  "description": "",
+  "main": "bot.js",
   "scripts": {
     "start": "node bot.js",
     "send-message": "node sendStartMessage.js"
   },
-  "parole chiave": [],
-  "autore": "",
-  "licenza": "ISC",
-  "tipo": "commonjs",
-  "dipendenze": {
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
     "discord.js": "^14.25.1",
     "dotenv": "^17.2.3"
   }
