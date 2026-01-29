@@ -215,10 +215,10 @@ client.on('guildMemberAdd', async (member) => {
     }
 });
 
-async function sendQuestion(member, interaction, verificationChannel, questionIndex) {
+async function sendQuestion(member, interaction, questionIndex) {
     try {
         if (questionIndex >= QUESTIONS.length) {
-            await completeVerification(member, interaction, verificationChannel);
+            await completeVerification(member, interaction);
             return;
         }
 
@@ -260,8 +260,6 @@ client.on('interactionCreate', async (interaction) => {
                 return interaction.reply({ content: '❌ Canale non trovato!', ephemeral: true });
             }
 
-            await interaction.reply({ content: `✅ Vai nel canale <#${CONFIG.VERIFICATION_CHANNEL_ID}> per iniziare!`, ephemeral: true });
-            
             const question = QUESTIONS[0];
             const embed = new EmbedBuilder()
                 .setColor('#0099ff')
@@ -282,15 +280,11 @@ client.on('interactionCreate', async (interaction) => {
                 rows.push(new ActionRowBuilder().addComponents(buttons.slice(i, i + 5)));
             }
 
-            try {
-                await verificationChannel.send({ 
-                    content: `${member}`,
-                    embeds: [embed], 
-                    components: rows 
-                });
-            } catch (error) {
-                console.error('Errore invio domanda:', error);
-            }
+            await interaction.reply({ 
+                embeds: [embed], 
+                components: rows,
+                ephemeral: true
+            });
 
             return;
         }
@@ -320,16 +314,15 @@ client.on('interactionCreate', async (interaction) => {
             ephemeral: true
         });
 
-        const verificationChannel = interaction.guild.channels.cache.get(CONFIG.VERIFICATION_CHANNEL_ID);
         await new Promise(r => setTimeout(r, 1000));
-        await sendQuestion(interaction.member, interaction, verificationChannel, questionIndex + 1);
+        await sendQuestion(interaction.member, interaction, questionIndex + 1);
 
     } catch (error) {
         console.error('Errore interazione:', error);
     }
 });
 
-async function completeVerification(member, interaction, verificationChannel) {
+async function completeVerification(member, interaction) {
     try {
         const responses = userResponses.get(member.id);
         if (!responses) return;
