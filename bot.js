@@ -192,7 +192,7 @@ client.on('guildMemberAdd', async (member) => {
                 .setColor('#FF6B35')
                 .setTitle('🎉 Benvenuto in SMFX ACADEMY!')
                 .setDescription(
-                    `Ciao tiacolo! 👋\n\n` +
+                    `Ciao ${member.user.username}! 👋\n\n` +
                     `Sei ufficialmente entrato nella **SMFX ACADEMY PREMIUM**, la community di trading più completa d'Italia!\n\n` +
                     `🚀 **Il tuo viaggio inizia qui:**\n\n` +
                     `Per accedere a tutti i contenuti esclusivi, vai nel canale <#${CONFIG.START_CHANNEL_ID}> e segui il percorso di verifica!\n\n` +
@@ -215,10 +215,10 @@ client.on('guildMemberAdd', async (member) => {
     }
 });
 
-async function sendQuestion(member, interaction, questionIndex) {
+async function sendQuestion(member, interaction, verificationChannel, questionIndex) {
     try {
         if (questionIndex >= QUESTIONS.length) {
-            await completeVerification(member, interaction);
+            await completeVerification(member, interaction, verificationChannel);
             return;
         }
 
@@ -242,6 +242,7 @@ async function sendQuestion(member, interaction, questionIndex) {
             rows.push(new ActionRowBuilder().addComponents(buttons.slice(i, i + 5)));
         }
 
+        // Invia nel canale #chi-sei (ephemeral)
         await interaction.followUp({ embeds: [embed], components: rows, ephemeral: true });
     } catch (error) {
         console.error('Errore domanda:', error);
@@ -260,10 +261,36 @@ client.on('interactionCreate', async (interaction) => {
                 return interaction.reply({ content: '❌ Canale non trovato!', ephemeral: true });
             }
 
-            await interaction.reply({ content: `✅ Vai in ${verificationChannel} per iniziare!`, ephemeral: true });
+            await interaction.reply({ content: `✅ Vai nel canale <#${CONFIG.VERIFICATION_CHANNEL_ID}> per iniziare!`, ephemeral: true });
             
-            // Invia le domande nel canale #chi-sei
-            await sendQuestion(member, interaction, 0);
+            // Invia la prima domanda nel canale #chi-sei
+            const question = QUESTIONS[0];
+            const embed = new EmbedBuilder()
+                .setColor('#0099ff')
+                .setTitle(`Domanda 1 di ${QUESTIONS.length}`)
+                .setDescription(question.question)
+                .setTimestamp();
+
+            const buttons = question.options.map((opt, idx) =>
+                new ButtonBuilder()
+                    .setCustomId(`q0_${idx}`)
+                    .setLabel(opt.label)
+                    .setEmoji(opt.emoji)
+                    .setStyle(ButtonStyle.Primary)
+            );
+
+            const rows = [];
+            for (let i = 0; i < buttons.length; i += 5) {
+                rows.push(new ActionRowBuilder().addComponents(buttons.slice(i, i + 5)));
+            }
+
+            // Invia direttamente nel canale #chi-sei (ephemeral)
+            await interaction.followUp({ 
+                embeds: [embed], 
+                components: rows,
+                ephemeral: true
+            });
+
             return;
         }
 
@@ -292,15 +319,16 @@ client.on('interactionCreate', async (interaction) => {
             ephemeral: true
         });
 
+        const verificationChannel = interaction.guild.channels.cache.get(CONFIG.VERIFICATION_CHANNEL_ID);
         await new Promise(r => setTimeout(r, 1000));
-        await sendQuestion(interaction.member, interaction, questionIndex + 1);
+        await sendQuestion(interaction.member, interaction, verificationChannel, questionIndex + 1);
 
     } catch (error) {
         console.error('Errore interazione:', error);
     }
 });
 
-async function completeVerification(member, interaction) {
+async function completeVerification(member, interaction, verificationChannel) {
     try {
         const responses = userResponses.get(member.id);
         if (!responses) return;
