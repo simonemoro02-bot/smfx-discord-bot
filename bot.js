@@ -254,7 +254,15 @@ client.on('interactionCreate', async (interaction) => {
     try {
         if (interaction.customId === 'next_step_verification') {
             const member = interaction.member;
-            await interaction.reply({ content: `✅ Iniziamo!`, ephemeral: true });
+            const verificationChannel = interaction.guild.channels.cache.get(CONFIG.VERIFICATION_CHANNEL_ID);
+            
+            if (!verificationChannel) {
+                return interaction.reply({ content: '❌ Canale non trovato!', ephemeral: true });
+            }
+
+            await interaction.reply({ content: `✅ Vai in ${verificationChannel} per iniziare!`, ephemeral: true });
+            
+            // Invia le domande nel canale #chi-sei
             await sendQuestion(member, interaction, 0);
             return;
         }
@@ -316,7 +324,7 @@ async function completeVerification(member, interaction) {
             .setColor('#00FF00')
             .setTitle('✅ Verifica Completata!')
             .setDescription(
-                `**Complimenti ${member.user.username}!** 🎉\n\n` +
+                `Complimenti **${member.user.username}**! 🎉\n\n` +
                 `Hai completato con successo il questionario di benvenuto!\n\n` +
                 `**🎯 Ruoli assegnati:**\n` +
                 (Array.from(roles).map(r => `• ${r}`).join('\n') || '• Profilo base') +
