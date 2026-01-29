@@ -215,10 +215,10 @@ client.on('guildMemberAdd', async (member) => {
     }
 });
 
-async function sendQuestion(member, interaction, questionIndex) {
+async function sendQuestion(member, interaction, verificationChannel, questionIndex) {
     try {
         if (questionIndex >= QUESTIONS.length) {
-            await completeVerification(member, interaction);
+            await completeVerification(member, interaction, verificationChannel);
             return;
         }
 
@@ -242,7 +242,15 @@ async function sendQuestion(member, interaction, questionIndex) {
             rows.push(new ActionRowBuilder().addComponents(buttons.slice(i, i + 5)));
         }
 
-        await interaction.followUp({ embeds: [embed], components: rows, ephemeral: true });
+        try {
+            await verificationChannel.send({ 
+                content: `${member}`,
+                embeds: [embed], 
+                components: rows 
+            });
+        } catch (error) {
+            console.error('Errore invio domanda:', error);
+        }
     } catch (error) {
         console.error('Errore domanda:', error);
     }
@@ -259,6 +267,8 @@ client.on('interactionCreate', async (interaction) => {
             if (!verificationChannel) {
                 return interaction.reply({ content: '❌ Canale non trovato!', ephemeral: true });
             }
+
+            await interaction.reply({ content: `✅ Vai nel canale <#${CONFIG.VERIFICATION_CHANNEL_ID}> per iniziare!`, ephemeral: true });
 
             const question = QUESTIONS[0];
             const embed = new EmbedBuilder()
@@ -280,11 +290,15 @@ client.on('interactionCreate', async (interaction) => {
                 rows.push(new ActionRowBuilder().addComponents(buttons.slice(i, i + 5)));
             }
 
-            await interaction.reply({ 
-                embeds: [embed], 
-                components: rows,
-                ephemeral: true
-            });
+            try {
+                await verificationChannel.send({ 
+                    content: `${member}`,
+                    embeds: [embed], 
+                    components: rows 
+                });
+            } catch (error) {
+                console.error('Errore invio domanda:', error);
+            }
 
             return;
         }
@@ -314,15 +328,16 @@ client.on('interactionCreate', async (interaction) => {
             ephemeral: true
         });
 
+        const verificationChannel = interaction.guild.channels.cache.get(CONFIG.VERIFICATION_CHANNEL_ID);
         await new Promise(r => setTimeout(r, 1000));
-        await sendQuestion(interaction.member, interaction, questionIndex + 1);
+        await sendQuestion(interaction.member, interaction, verificationChannel, questionIndex + 1);
 
     } catch (error) {
         console.error('Errore interazione:', error);
     }
 });
 
-async function completeVerification(member, interaction) {
+async function completeVerification(member, interaction, verificationChannel) {
     try {
         const responses = userResponses.get(member.id);
         if (!responses) return;
@@ -358,7 +373,7 @@ async function completeVerification(member, interaction) {
             .setFooter({ text: 'SMFX ACADEMY • Il tuo viaggio inizia ora!' })
             .setTimestamp();
 
-        await interaction.followUp({ embeds: [embed], ephemeral: true });
+        await verificationChannel.send({ embeds: [embed] });
         userResponses.delete(member.id);
 
     } catch (error) {
