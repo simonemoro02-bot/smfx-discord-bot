@@ -242,7 +242,6 @@ async function sendQuestion(member, interaction, verificationChannel, questionIn
             rows.push(new ActionRowBuilder().addComponents(buttons.slice(i, i + 5)));
         }
 
-        // Invia nel canale #chi-sei (ephemeral)
         await interaction.followUp({ embeds: [embed], components: rows, ephemeral: true });
     } catch (error) {
         console.error('Errore domanda:', error);
@@ -263,7 +262,6 @@ client.on('interactionCreate', async (interaction) => {
 
             await interaction.reply({ content: `✅ Vai nel canale <#${CONFIG.VERIFICATION_CHANNEL_ID}> per iniziare!`, ephemeral: true });
             
-            // Invia la prima domanda nel canale #chi-sei
             const question = QUESTIONS[0];
             const embed = new EmbedBuilder()
                 .setColor('#0099ff')
@@ -284,12 +282,15 @@ client.on('interactionCreate', async (interaction) => {
                 rows.push(new ActionRowBuilder().addComponents(buttons.slice(i, i + 5)));
             }
 
-            // Invia direttamente nel canale #chi-sei (ephemeral)
-            await interaction.followUp({ 
-                embeds: [embed], 
-                components: rows,
-                ephemeral: true
-            });
+            try {
+                await verificationChannel.send({ 
+                    content: `${member}`,
+                    embeds: [embed], 
+                    components: rows 
+                });
+            } catch (error) {
+                console.error('Errore invio domanda:', error);
+            }
 
             return;
         }
